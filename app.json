@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "reactnative_test_app_2022",
+    "slug": "reactnative_test_app_2022",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "reactnative_test_app_2022"
+}
