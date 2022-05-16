@@ -4,7 +4,7 @@ import { Alert, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import colors from '../colors';
-import {  useDB } from '../context';
+import { useDB } from '../context';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("screen");
 

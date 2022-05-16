@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Dimensions } from 'react-native';
+import { Dimensions, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import colors from '../colors';
@@ -65,6 +65,15 @@ const Home = ({ navigation: { navigate }}) => {
     useEffect(() => {
         const fetched = realm.objects("Feeling")
         fetched.addListener((feelings, changes) => {
+            /* LayoutAnimation: https://reactnative.dev/docs/layoutanimation */
+            /* Only For Android */
+            if (Platform.OS === 'android') {
+                if (UIManager.setLayoutAnimationEnabledExperimental) {
+                  UIManager.setLayoutAnimationEnabledExperimental(true);
+                }
+            }
+            /* Animate When a State is Changed */
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
             setFeelings(feelings.sorted("_id", true));
         });
         return () => {
