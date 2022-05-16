@@ -7,7 +7,7 @@ import Navigator from './Navigator';
 
 /* Realm by Mongo DB: https://www.mongodb.com/docs/realm/sdk/react-native/install/ */
 /* 'expo start' Doesn't Work → Must Use 'expo run:android' */
-import Realm from "realm";
+import Realm, { schemaVersion } from "realm";
 import { DBContext } from './context';
 
 /* Realm Data Schema */
@@ -16,7 +16,8 @@ const FeelingSchema = {
   properties: {
     _id: "int",
     emoticon: "string",
-    message: "string"
+    message: "string",
+    isEditing: "bool"
   },
   primaryKey: "_id"
 };
@@ -26,9 +27,25 @@ export default function App() {
   const [realm, setRealm] = useState(null);
 
   const startLoading = async() => {
+    /* Realm Setup */
     const connection  = await Realm.open({
       path: "diaryDB",
-      schema: [FeelingSchema]
+      schema: [FeelingSchema],
+      schemaVersion: 2,
+      migration: (oldRealm, newRealm) => {
+        if(oldRealm.schemaVersion < 2){
+          const oldObjects = oldRealm.objects("Feeling");
+          const newObjects = newRealm.objects("Feeling");
+          for (const objectIndex in oldObjects) {
+            const oldObject = oldObjects[objectIndex];
+            const newObject = newObjects[objectIndex];
+            newObject._id = oldObject._id;
+            newObject.emoticon = oldObject.emoticon;
+            newObject.message = oldObject.message;
+            newObject.isEditing = false;
+          }
+        }
+      }
     });
     setRealm(connection);
   };

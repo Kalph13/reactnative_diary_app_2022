@@ -6,6 +6,11 @@ import { Ionicons } from '@expo/vector-icons';
 import colors from '../colors';
 import { useDB } from '../context';
 
+/* Expo Admob: https://docs.expo.dev/versions/latest/sdk/admob */
+/* How to Install: https://github.com/expo/expo/tree/main/packages/expo-ads-admob */
+/* Admob Test IDs: https://developers.google.com/admob/android/test-ads */
+import { AdMobInterstitial, AdMobRewarded } from 'expo-ads-admob';
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("screen");
 
 const View = styled.View`
@@ -83,18 +88,34 @@ const Write = ({ navigation: { goBack }}) => {
         setMessage(input);
     };
 
-    const onSubmit = () => {
+    const onSubmit = async () => {
         if (emoticon === "" || message === "") {
             return Alert.alert("Please let me know your feelings today :)");
         }
-        realm.write(() => {
-            realm.create("Feeling", {
-                _id: Date.now(),
-                emoticon: emoticon,
-                message: message
+
+        /* Display an Interstitial Ads */
+        // await AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1033173712'); /* Test ID */
+        // await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true});
+        // await AdMobInterstitial.showAdAsync();
+
+        /* Display a Rewarded Ads */
+        await AdMobRewarded.setAdUnitID('ca-app-pub-3940256099942544/5224354917'); /* Test ID */
+        await AdMobRewarded.requestAdAsync();
+        await AdMobRewarded.showAdAsync();
+        AdMobRewarded.addEventListener("rewardedVideoUserDidEarnReward", () => {
+            AdMobRewarded.addEventListener("rewardedVideoDidDismiss", () => {
+                /* Realm DB Create */
+                realm.write(() => {
+                    realm.create("Feeling", {
+                        _id: Date.now(),
+                        emoticon: emoticon,
+                        message: message,
+                        isEditing: false
+                    })
+                });
+                goBack(); /* Same as navigate("Home"); */
             })
         });
-        goBack(); /* Same as navigate("Home"); */
     };
 
     return (
